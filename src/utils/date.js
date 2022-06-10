@@ -27,7 +27,7 @@ const getDate = date => {
 
 /**
  * 格式化日期
- * @param {string, number} date
+ * @param {Date} date
  * @param {*} fmt
  */
 export const format = (date, fmt = DATE_FMT) => {
