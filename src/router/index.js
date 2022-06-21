@@ -42,6 +42,14 @@ routes.push(
         title: '首页'
       }
     },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('@/views/login/index'),
+      meta: {
+        title: '登录页'
+      }
+    },
     // 无权限页面
     {
       path: '/no-permission',

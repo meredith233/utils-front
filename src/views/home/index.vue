@@ -67,7 +67,7 @@ export default {
       return ((a / b) * 100).toFixed(2) + '%'
     },
     countdown: function () {
-      return new Date(2022, 5, 11, 9, 35, 0).getTime() - new Date().getTime()
+      return new Date(2022, 5, 24, 9, 35, 0).getTime() - new Date().getTime()
     }
   },
 

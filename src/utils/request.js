@@ -1,15 +1,17 @@
 import axios from 'axios'
 import qs from 'qs'
+import store from '@/store'
+import { Notify } from 'vant'
 let mockMatch = undefined
 // 正式环境不需要使用mock
 if (process.env.NODE_ENV === 'development') {
   mockMatch = require('@/mock').default
 }
 
-const baseURL = process.env.VUE_BASE_API
+const baseURL = process.env.VUE_APP_BASE_API
 
 // mock请求代理
-const mockURL = process.env.VUE_APP_MOCK_URL
+const mockURL = process.env.VUE_APP_MOCK_API
 
 const instance = axios.create({
   baseURL,
@@ -30,7 +32,7 @@ instance.interceptors.request.use(
       }
     }
     // 在这里做认证，可以从store里面获取token
-    // config.headers['Authorization'] = `Bearer ${store.getters.getAccessToken}`
+    config.headers['Authorization'] = `Bearer ${store.state.accessToken}`
 
     // 如果get  请求有缓存，可以加这段代码
     if (config.method === 'get') {
@@ -67,8 +69,23 @@ const request = (options = {}) => {
   return new Promise((resolve, reject) => {
     instance(options)
       .then(({ data, status, statusText }) => {
+        console.log(data)
         if (status === 200) {
-          resolve(data)
+          if (data.success) {
+            resolve(data.data)
+          } else {
+            let msg = ''
+            switch (data.errCode) {
+              case '40000':
+                msg = data.errMessage
+                break
+              default:
+                msg = data.errMessage || statusText
+                break
+            }
+            Notify({ type: 'warning', message: msg })
+            reject(msg)
+          }
         } else {
           reject(statusText)
         }
@@ -78,24 +95,26 @@ const request = (options = {}) => {
           reject(result)
         }
         const {
-          response: { status, statusText, data = {} }
+          response: { isSuccess, errCode, errMessage, data = {} }
         } = result
-        switch (status) {
-          // 未登录
-          case 401:
-            sessionStorage.clear()
-            reject('您还未登录')
-            break
-          case 403:
-            reject('登录失效')
-            break
-          case 404:
-            reject('访问异常，请联系系统管理员')
-            // 请求丢失
-            break
-          default:
-            reject(data.message || statusText)
-            break
+        if (!isSuccess) {
+          switch (errCode) {
+            // 未登录
+            case 401:
+              sessionStorage.clear()
+              reject('您还未登录')
+              break
+            case 403:
+              reject('登录失效')
+              break
+            case 404:
+              reject('访问异常，请联系系统管理员')
+              // 请求丢失
+              break
+            default:
+              reject(data.message || errMessage)
+              break
+          }
         }
       })
   })

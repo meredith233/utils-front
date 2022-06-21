@@ -8,7 +8,7 @@ const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const isProd = process.env.NODE_ENV === 'production'
 
 // 开发模式代理地址 TODO: 按需修改
-const DEV_URL = 'http://127.0.0.1'
+const DEV_URL = 'http://127.0.0.1:8080'
 
 const MOCK_URL =
   'https://www.fastmock.site/mock/52683c53c56c5c59bc1e46d24a3550b6/zijun'
